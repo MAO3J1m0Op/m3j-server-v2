@@ -1,0 +1,3 @@
+[submodule "properties/UHC/UHC-datapacks"]
+	path = properties/UHC/UHC-datapacks
+	url = https://github.com/MAO3J1m0Op/UHC-datapacks.git

@@ -1,0 +1,6 @@
+{
+    "values": [
+        "slime_chunk_finder:src/setup",
+        "slime_chunk_finder:trigger/init"
+    ]
+}

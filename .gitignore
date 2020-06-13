@@ -1,0 +1,29 @@
+# I'm a Mac user
+**/.DS_Store
+
+# No need to commit the server jar; it's too big and can be
+# downloaded off of a website
+/*-server.jar
+
+# For sake of privacy
+/banned-players.json
+/banned-ips.json
+/ops.json
+/whitelist.json
+/usercache.json
+
+# The active server.properties is always a copy
+/server.properties
+
+# Committing logs is unnecessary memory
+/logs/
+/crash-reports/
+
+# Server status is too volatile
+/SERVER_STATUS
+
+# No longer will I be doing world backups
+/.SURVIVAL_backup/
+/ADVENTURE_MAP/
+/LOBBY/
+/UHC/

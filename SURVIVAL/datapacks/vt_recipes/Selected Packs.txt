@@ -1,0 +1,9 @@
+Vanilla Tweaks Crafting Tweaks
+Version: 1.15
+Packs:
+	renewable coral blocks 3x3 v1.0.0
+	universal dyeing v1.2.0
+	uncraftable ice v1.0.0
+	uncraftable nether wart block v1.0.0
+	4 bark blocks v1.0.0
+	back to blocks v1.1.0

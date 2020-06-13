@@ -1,0 +1,20 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:command_block"
+        },
+        "title": {
+            "text": "Professional Game Designer"
+        },
+        "description": {
+            "text": "Create and register a server minigame."
+        },
+        "frame": "challenge"
+    },
+    "parent": "m3j:trophies/play_minigame",
+    "criteria": {
+        "lone": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

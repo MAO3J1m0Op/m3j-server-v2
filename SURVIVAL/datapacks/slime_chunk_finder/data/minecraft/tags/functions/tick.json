@@ -1,0 +1,6 @@
+{
+    "values": [
+        "slime_chunk_finder:trigger/enable",
+        "slime_chunk_finder:trigger/detect"
+    ]
+}

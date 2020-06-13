@@ -1,0 +1,47 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:diamond"
+        },
+        "title": {
+            "text": "Riches Flow"
+        },
+        "description": [
+            {
+                "text": "M",
+                "color": "dark_red"
+            },
+            {
+                "text": "3",
+                "color": "white"
+            },
+            {
+                "text": "J",
+                "color": "dark_blue"
+            },
+            {
+                "text": " Challenge\n",
+                "color": "gold"
+            },
+            {
+                "text": "Collect a stack of diamonds.",
+                "color": "dark_purple"
+            }
+        ],
+        "frame": "challenge"
+    },
+    "parent": "minecraft:story/mine_diamond",
+    "criteria": {
+        "has_stack": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "item": "minecraft:diamond",
+                        "count": 64
+                    }
+                ]
+            }
+        }
+    }
+}

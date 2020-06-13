@@ -1,0 +1,23 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:cake"
+        },
+        "title": {
+            "text": "Oldie"
+        },
+        "description": {
+            "text": "Never forget that crappy taiga spawn."
+        },
+        "frame": "challenge",
+        "announce_to_chat": false,
+        "hidden": true,
+        "show_toast": false
+    },
+    "parent": "m3j:trophies/root",
+    "criteria": {
+        "lone": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

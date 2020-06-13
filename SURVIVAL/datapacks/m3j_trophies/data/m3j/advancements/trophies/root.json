@@ -1,0 +1,21 @@
+{
+    "display": {
+        "icon": {
+            "item": "minecraft:totem_of_undying"
+        },
+        "title": {
+            "text": "M3J Server Trophies"
+        },
+        "description": {
+            "text": "Server-Specific Advancements/Challenges are here!"
+        },
+        "announce_to_chat": false,
+        "show_toast": false,
+        "background": "minecraft:textures/block/observer_front.png"
+    },
+    "criteria": {
+        "lone": {
+            "trigger": "minecraft:tick"
+        }
+    }
+}
