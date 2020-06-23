@@ -3,6 +3,11 @@
 server=$1
 default_server=1.15.2
 dir=/home/billiam/Minecraft-Server
+ip="24.224.83.69"
+
+status_tag="STATUS: "
+version_tag="VERSION: "
+ip_tag="IP: "
 
 # If no command line arg is passed
 if [[ $1 == "" ]]
@@ -12,13 +17,16 @@ fi
 
 cd $dir
 
-# Set server status to ONLINE
-echo 'ONLINE' >> ./SERVER_STATUS
+echo ${status_tag}'STARTING...' > ./SERVER_STATUS
 
 # Start server
 java -Xmx1024M -Xms1024M -jar ./${server}-server.jar nogui
 
+echo ${status_tag}'ONLINE' > ./SERVER_STATUS
+echo ${version_tag}${server} >> ./SERVER_STATUS
+echo ${ip_tag}${ip} >> ./SERVER_STATUS
+
 # Prompt for next status
 echo 'What do you want the next status to be?'
 read status
-echo $status >> ./SERVER_STATUS
+echo ${status_tag}${status} > ./SERVER_STATUS
