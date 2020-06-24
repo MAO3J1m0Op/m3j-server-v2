@@ -17,14 +17,12 @@ fi
 
 cd $dir
 
-echo ${status_tag}'STARTING...' > ./SERVER_STATUS
-
-# Start server
-java -Xmx1024M -Xms1024M -jar ./${server}-server.jar nogui
-
 echo ${status_tag}'ONLINE' > ./SERVER_STATUS
 echo ${version_tag}${server} >> ./SERVER_STATUS
 echo ${ip_tag}${ip} >> ./SERVER_STATUS
+
+# Start server
+java -Xmx1024M -Xms1024M -jar ./${server}-server.jar nogui
 
 # Prompt for next status
 echo 'What do you want the next status to be?'
