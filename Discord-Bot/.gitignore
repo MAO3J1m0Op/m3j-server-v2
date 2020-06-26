@@ -1,0 +1,7 @@
+# This is super secret stuff.
+auth.json
+
+# Runtime data is not code.
+data.json
+
+npm-debug.log

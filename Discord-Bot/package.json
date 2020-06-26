@@ -1,0 +1,15 @@
+{
+  "name": "m3j-server-bot",
+  "version": "1.0.0",
+  "description": "For all my botty needs",
+  "main": "bot.js",
+  "dependencies": {
+    "discord.js": "^12.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MAO3J1m0Op",
+  "license": "ISC"
+}
