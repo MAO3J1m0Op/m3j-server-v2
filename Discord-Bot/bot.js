@@ -8,6 +8,7 @@ const path = require('path');
 const client = new discord.Client();
 
 let cache = ""
+let message = null
 var ipChannel
 
 client.login(auth.token);
@@ -19,7 +20,11 @@ client.on('ready', function() {
 });
 
 function onStatusUpdate(newStatus) {
-    ipChannel.send('```\n' + newStatus + '\n```');
+    let text = '```\n' + newStatus + '\n```'
+    if (message === null) {
+        console.log('Could not find previous message. Sending new one.');
+        ipChannel.send(text).then(msg => { message = msg; })
+    } else message.edit(text);
 }
 
 async function checkForStatusUpdate() {
