@@ -8,6 +8,9 @@ ip="24.224.83.69"
 status_tag="STATUS: "
 version_tag="VERSION: "
 ip_tag="IP: "
+crash_message="STATUS: Unexpectedly closed
+  If this message does not go away shortly, the server has likely crashed.
+  If that is the case, please notify @Mario3Jump."
 
 # If no command line arg is passed
 if [[ $1 == "" ]]
@@ -23,6 +26,9 @@ echo ${ip_tag}${ip} >> ./SERVER_STATUS
 
 # Start server
 java -Xmx1024M -Xms1024M -jar ./${server}-server.jar nogui
+
+# Place holder on the condition of a crash
+echo $crash_message > ./SERVER_STATUS
 
 # Prompt for next status
 echo 'What do you want the next status to be?'
