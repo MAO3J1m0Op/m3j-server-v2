@@ -1,7 +1,7 @@
 #!/bin/bash
 
 server=$1
-default_server=1.16
+default_server=1.16.1
 dir=/home/billiam/Minecraft-Server
 ip="24.224.83.69"
 
