@@ -1,0 +1,17 @@
+All data is backed up
+*
+
+# Keep this .gitignore
+!.gitignore
+
+# We just need to keep track of the datapacks
+!datapacks/
+
+!*/
+
+# And the end chunk remover
+!/DIM1/region/delete_far_chunks.py
+
+session.lock
+level.dat
+level.dat_old
