@@ -5,8 +5,37 @@
 
 from pathlib import Path
 import os
+import random
+from sys import argv
 
-threshold = 20
+fallback_theshold = 20
+# Gets threshold as first argument
+try:
+    # One number, constant
+    threshold = int(argv[1])
+except ValueError:
+    # Tries a random set, split at :
+    bounds = argv[1].split(':')
+
+    # There must be only 1 colon
+    if len(bounds) == 2:
+        try:
+            threshold = tuple(int(i) for i in bounds)
+        except ValueError:
+            print('Supplied theshold is invalid. Assuming ' + str(fallback_theshold))
+            threshold = fallback_theshold
+    else:
+        print('Supplied theshold is invalid. Assuming ' + str(fallback_theshold))
+        threshold = fallback_theshold
+
+except IndexError:
+    print('No threshold supplied. Assuming ' + str(fallback_theshold))
+    threshold = fallback_theshold
+
+# If threshold is a tuple, randomly pick 1 number in bounds
+if type(threshold) is tuple:
+    low, high = threshold
+    threshold = random.randint(low, high)
 
 end = Path('/home/billiam/Minecraft-Server/SURVIVAL/DIM1/region')
 
@@ -42,5 +71,5 @@ for rfile in end.iterdir():
         continue
 
     if abs(x) > threshold or abs(z) > threshold:
-        print('Deleting ' + rfile.name)
+        # print('Deleting ' + rfile.name)
         os.remove(rfile)
