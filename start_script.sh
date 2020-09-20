@@ -3,7 +3,7 @@
 property=$1
 default_property="SURVIVAL"
 server=$2
-default_server=1.16.2
+default_server=1.16.3
 dir=/home/billiam/Minecraft-Server
 ip="24.224.83.69"
 
