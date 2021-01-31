@@ -18,21 +18,11 @@ crash_message="STATUS: Unexpectedly closed
 
 do_uhc () {
     rm -r $dir/UHC
-    echo "Deploying UHC world ($1 mode)."
+    echo "Deploying UHC world."
     cp $dir/properties/UHC/server.properties $dir/
     mkdir $dir/UHC
     mkdir $dir/UHC/datapacks
-    cp -r $dir/properties/UHC/UHC-datapacks/uhc_$1 $dir/UHC/datapacks
-    echo 'Do speed mode?'
-    read speedmode
-    case $speedmode in
-        "y")
-            cp -r $dir/properties/UHC/UHC-datapacks/uhc_speed $dir/UHC/datapacks
-            echo 'Speed mode active.'
-        ;;
-        *)
-            echo 'Speed mode cancelled.'
-    esac
+    cp -r $dir/properties/UHC/uhc-datapack.zip $dir/UHC/datapacks
 }
 
 # If no command line arg is passed
@@ -57,11 +47,8 @@ case $property in
         echo 'Deploying survival world.'
         cp $dir/properties/Survival/server.properties $dir/
     ;;
-    "UHC_SOLO")
-        do_uhc "solo"
-    ;;
-    "UHC_TEAMS")
-        do_uhc "teams"
+    "UHC")
+        do_uhc
     ;;
     *)
         echo "ERROR: Expected LOBBY, SURVIVAL, UHC_SOLO, UHC_TEAMS, got $property."
