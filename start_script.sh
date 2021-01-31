@@ -73,7 +73,7 @@ echo ${version_tag}${server} >> $dir/SERVER_STATUS
 echo ${ip_tag}${ip} >> $dir/SERVER_STATUS
 
 # Start server
-java -Xmx1024M -Xms1024M -jar ./${server}-server.jar nogui
+java -Xmx2048M -Xms2048M -jar ./${server}-server.jar nogui
 
 # Place holder on the condition of a crash
 echo $crash_message > $dir/SERVER_STATUS
