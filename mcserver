@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+
+import click
+from sys import argv
+from pathlib import Path
+import os
+import shutil
+import json
+
+# Get the server path
+server = Path(os.path.dirname(argv[0]))
+os.chdir(server)
+configs = server / 'configs'
+
+default_start_file = {
+    "config_name": ".default",
+    "server_version": "1.7.10",
+    "args": [
+        "-Xmx1024M",
+        "-Xms1024M"
+    ],
+    "launch_gui": False
+}
+
+class ScriptError(Exception):
+    pass
+
+@click.command()
+@click.argument('config')
+
+def create(config):
+
+    # Returns true if a new file was made
+    def safe_make_folder(path: Path):
+
+        # Make the folder if the path does not exist
+        if not path.exists():
+            path.mkdir()
+            return True
+
+        # Don't overwrite a potential file
+        if path.is_file():
+            raise ScriptError(f'Cannot create folder "{path}", as a file ' + \
+                'already exists with a conflicting name.')
+
+        # Do nothing if the folder exists
+        return False
+
+    safe_make_folder(configs)
+
+    # Create the default if it doesn't exist
+    default = configs / '.default'
+    if safe_make_folder(default):
+        print(f'Creating a default configuration at {default}. All ' + \
+            'new configurations will be a copy of this one.')
+
+        # Verify the server.properties file exists    
+        if (server / 'server.properties').is_file():
+            shutil.copyfile(server / 'server.properties', 
+                default / 'server.properties')
+        else:
+            print('No server.properties file found. The default ' + \
+                'configuration will lack this file.')
+
+        # Add config settings
+        with open(default / 'start.json', 'x') as j:
+            json.dump(default_start_file, j)
+
+    # Create the new config: a copy of the default
+    config_p = configs / config
+    if config_p.exists():
+        raise ScriptError(f'Configuration {config} already exists.')
+    print(f'Creating new configuration named "{config}".')
+    shutil.copytree(default, config_p)
+
+@click.command()
+@click.argument('config')
+def deploy(config):
+
+    def deploy_file(config_p: Path, file: str):
+        try:
+            shutil.copyfile(str(config_p / file), server / file)
+        # TODO specify exception
+        except FileNotFoundError as e:
+            print(f'No {file} found. Using existing file.')
+
+    print(f'Deploying configuration "{config}".')
+    config_p = configs / config
+    if not config_p.is_dir():
+        raise ScriptError(f'Could not locate config option {config}.')
+    
+    deploy_file(config_p, 'server.properties')
+    deploy_file(config_p, 'server-icon.png')
+    deploy_file(config_p, 'start.json')
+
+@click.command()
+@click.argument('config', required=False)
+def start(config):
+
+    # Deploy the config option
+    if config is not None:
+        deploy(config)
+
+    def read_json(path: Path) -> dict:
+        try:
+            with path.open('r') as p:
+                j = json.load(p)
+            return j
+        except IOError as e:
+            raise ScriptError(str(e))
+
+    # Get the server IP
+    private = read_json(server / 'private.json')
+    ip = private.get('ip', None)
+    if ip is None:
+        raise ScriptError('IP not found. Add it to private.json.')
+
+    # Get the start settings
+    start = read_json(server / 'start.json')
+    #TODO: only load these in when necessary
+    default_settings = read_json(configs / '.default' / 'start.json')
+
+    # Declare a helper function for referencing the start settings
+    def get_option(option: str, default = None):
+
+        # First try the deployed start file
+        deployed = start.get(option)
+        if deployed is not None:
+            return deployed
+            
+        # Then try the start file in .default
+        print(f'Deployed start.json has no option {option}. Falling back ' + \
+            f'to option in {str(configs / ".default")}.')
+        return default_settings.get(option, default)
+
+    # Read in the start settings
+    version = get_option('server_version')
+    if version is None:
+        raise ScriptError('No server version specified in start.json.')
+    args = ''.join([' ' + a for a in get_option('args', [])])
+    gui = get_option('launch_gui', False)
+
+    # Splice the command
+    command = 'java' + args + ' -jar ' + version + '.jar' + \
+        ' nogui' if not gui else ''
+
+    # Quick helper function for updating the SERVER_STATUS file
+    def update_status(message: str):
+        with (server / 'SERVER_STATUS').open('w') as s:
+            s.write(message)
+
+    # Start the server
+    print('Starting server with command `' + command + '`.')
+    update_status("STATUS: ONLINE\nIP: " + ip)
+    code = os.system(command)
+    print(f"Process ended with exit code {code}.")
+
+    # Request closing status
+    update_status('STATUS: Unexpectedly Closed')
+    print('Server closed. Enter the closure status.')
+    print('(Status will read "Unexpectedly Closed" until this is done).')
+    update_status('STATUS: ' + input('>>> '))
+
+@click.group()
+def main():
+    pass
+
+main.add_command(create)
+main.add_command(deploy)
+main.add_command(start)
+
+if __name__ == '__main__':
+    try:
+        main()
+    except ScriptError as e:
+        print('Error: ' + str(e))
