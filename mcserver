@@ -27,7 +27,6 @@ class ScriptError(Exception):
 
 @click.command()
 @click.argument('config')
-
 def create(config):
 
     # Returns true if a new file was made
@@ -92,6 +91,79 @@ def deploy(config):
     deploy_file(config_p, 'server.properties')
     deploy_file(config_p, 'server-icon.png')
     deploy_file(config_p, 'start.json')
+
+@click.command()
+@click.option('--skip-checksum', '-s', 
+    is_flag=True, help='Skips checking the integrity of the download.')
+@click.argument('version')
+def download(skip_checksum, version: str):
+
+    from urllib.request import urlopen, urlretrieve
+    man_url = 'https://launchermeta.mojang.com/mc/game/version_manifest.json'
+
+    print('Fetching Minecraft version manifest.')
+    with urlopen(man_url) as url:
+        manifest = json.load(url)
+
+    # Get latest version of Minecraft
+    if version in ('latest', 'latest-release'):
+        version = manifest["latest"]["release"]
+        print(f'Latest release of Minecraft is {version}.')
+    elif version == 'latest-snapshot':
+        version = manifest["latest"]["snapshot"]
+        print(f'Latest snapshot of Minecraft is {version}')
+
+    # Check if version is already installed
+    if (server / (version + '.jar')).exists():
+        raise ScriptError(f'Minecraft version {version} already installed.')
+
+    # Fetch version manifest
+    v_list = manifest['versions']
+    v_data = {}
+    for v in v_list:
+        if version == v['id']:
+            v_data = v
+            break
+    else:
+        raise ScriptError(f'No official version {version} exists.')
+
+    print(f'Fetching manifest for version {version}.')
+    with urlopen(v_data['url']) as url:
+        v_manifest = json.load(url)['downloads']
+    
+    # Check if the version has a server
+    v_manifest = v_manifest.get('server')
+    if v_manifest is None:
+        raise ScriptError(f'Version {version} does not have a server file.')
+
+    url = v_manifest['url']
+    size = round(v_manifest['size'] / (1024 ** 2), 1)
+
+    print(f'Downloading {version}.jar (size {size}MB).')
+    urlretrieve(url, server / (version + '.jar'))
+
+    if not skip_checksum:
+        print('Verifying download', end='...')
+
+        # Compute hash
+        from hashlib import sha1
+        hash = sha1()
+        with (server / (version + '.jar')).open('rb') as f:
+            while True:
+                data = f.read(64 * 1024)
+                if not data:
+                    break
+                hash.update(data)
+
+        # Compare hashes
+        expected = v_manifest['sha1']
+        hash = hash.hexdigest()
+        if hash == expected:
+            print('Hashes match.')
+        else:
+            print(f'Hashes do not match (expected {expected}, got {hash}.')
+    
+    print(f'Successfully installed {version}.jar.')
 
 @click.command()
 @click.argument('config', required=False)
@@ -167,6 +239,7 @@ def main():
 
 main.add_command(create)
 main.add_command(deploy)
+main.add_command(download)
 main.add_command(start)
 
 if __name__ == '__main__':
