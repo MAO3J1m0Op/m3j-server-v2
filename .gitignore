@@ -3,7 +3,8 @@
 
 # No need to commit the server jar; it's too big and can be
 # downloaded off of a website
-/*-server.jar
+/*.jar
+/eula.txt
 
 # For sake of privacy
 /banned-players.json
@@ -11,6 +12,7 @@
 /ops.json
 /whitelist.json
 /usercache.json
+/private.json
 
 # The active server.properties is always a copy
 /server.properties
@@ -29,6 +31,3 @@
 /ADVENTURE_MAP/
 /LOBBY/
 /UHC/
-
-# Private information
-/private.json
