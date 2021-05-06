@@ -14,6 +14,8 @@
 
 # The active server.properties is always a copy
 /server.properties
+/start.json
+/server-icon.png
 
 # Committing logs is unnecessary memory
 /logs/
@@ -27,3 +29,6 @@
 /ADVENTURE_MAP/
 /LOBBY/
 /UHC/
+
+# Private information
+/private.json
