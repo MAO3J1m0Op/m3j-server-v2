@@ -19,7 +19,8 @@ default_start_file = {
         "-Xmx1024M",
         "-Xms1024M"
     ],
-    "launch_gui": False
+    "launch_gui": False,
+    "volatile_world": False
 }
 
 class ScriptError(Exception):
@@ -60,6 +61,9 @@ def create(config):
         else:
             print('No server.properties file found. The default ' + \
                 'configuration will lack this file.')
+
+        # Add default world 
+        safe_make_folder(default / 'world-template')
 
         # Add config settings
         with open(default / 'start.json', 'x') as j:
@@ -211,6 +215,45 @@ def start(config):
         raise ScriptError('No server version specified in start.json.')
     args = ''.join([' ' + a for a in get_option('args', [])])
     gui = get_option('launch_gui', False)
+    volatile_world = get_option('volatile_world', False)
+
+    # Recreate the world if necessary
+    if (server / 'server.properties').exists():
+
+        # Get world name
+        with (server / 'server.properties').open('r') as f:
+            while True:
+                prefix = 'level-name='
+                world_name_line = f.readline()
+                if world_name_line.startswith(prefix):
+                    break
+        world_name = world_name_line[len(prefix):-1]
+
+        # Cut the trailing newline
+        if world_name.endswith('\n'):
+            world_name = world_name[:-1]
+
+        # Default to "world"
+        if world_name == '':
+            world_name = 'world'
+
+        # Delete the old folder
+        if volatile_world:
+            if (server / world_name).exists():
+                print(f'About to delete folder {server / world_name}. ' + \
+                    'Press enter to confirm.')
+                input()
+                shutil.rmtree(server / world_name, Path.home())
+
+        # Copy in the template if the world must be recreated
+        if not (server / world_name).exists():
+            name = get_option('config_name')
+            if name and (configs / name / 'world-template').is_dir():
+                shutil.copytree(configs / name / 'world-template', 
+                    server / world_name)
+                print(f'World template from configuration {name} used.')
+            else:
+                print('Could not locate a world template.')
 
     # Splice the command
     command = 'java' + args + ' -jar ' + version + '.jar' + \
