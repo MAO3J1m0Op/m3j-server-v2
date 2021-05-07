@@ -58,7 +58,7 @@ def create(config):
         safe_make_folder(config_p / 'world-template')
 
         # Add config settings
-        with open(config_p / 'start.json', 'x') as j:
+        with open(config_p / 'configuration.json', 'x') as j:
             json.dump(default_start_file, j, indent=4)
 
     default_folder = configs / '.default'
@@ -97,8 +97,8 @@ def deploy(config):
     _, files, folders = next(iter(os.walk(config_p)))
     for file in files + folders:
 
-        # Ignore start.json and hidden files
-        if file == 'start.json' or file.startswith('.'):
+        # Ignore configuration.json and hidden files
+        if file == 'configuration.json' or file.startswith('.'):
             continue
 
         # Keep a record of the deployed files
@@ -224,10 +224,10 @@ def start(config, crash_message, ignore_status):
         raise ScriptError('IP not found. Add it to private.json.')
 
     # Get the start settings
-    start = read_json(server / 'start.json')
+    start = read_json(server / 'configuration.json')
     #TODO: only load these in when necessary
-    if (configs / '.default' / 'start.json').is_file():
-        default_settings = read_json(configs / '.default' / 'start.json')
+    if (configs / '.default' / 'configuration.json').is_file():
+        default_settings = read_json(configs / '.default' / 'configuration.json')
     else:
         default_settings = {}
 
@@ -240,14 +240,14 @@ def start(config, crash_message, ignore_status):
             return deployed
             
         # Then try the start file in .default
-        print(f'Deployed start.json has no option {option}. Falling back ' + \
+        print(f'Deployed configuration.json has no option {option}. Falling back ' + \
             f'to option in {str(configs / ".default")}.')
         return default_settings.get(option, default)
 
     # Read in the start settings
     version = get_option('server_version')
     if version is None:
-        raise ScriptError('No server version specified in start.json.')
+        raise ScriptError('No server version specified in configuration.json.')
     args = ''.join([' ' + a for a in get_option('args', [])])
     gui = get_option('launch_gui', False)
     volatile_world = get_option('volatile_world', False)
