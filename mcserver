@@ -170,8 +170,13 @@ def download(skip_checksum, version: str):
     print(f'Successfully installed {version}.jar.')
 
 @click.command()
+@click.option('--crash-message', '-c', help='Sets the server status '
+    'to a crash message upon close until the user provides a '
+    'message.')
+@click.option('--ignore-status', '-i', is_flag=True,
+    help='Do not edit the server status file.')
 @click.argument('config', required=False)
-def start(config):
+def start(config, crash_message, ignore_status):
 
     # Deploy the config option
     if config is not None:
@@ -194,7 +199,10 @@ def start(config):
     # Get the start settings
     start = read_json(server / 'start.json')
     #TODO: only load these in when necessary
-    default_settings = read_json(configs / '.default' / 'start.json')
+    if (configs / '.default' / 'start.json').is_file():
+        default_settings = read_json(configs / '.default' / 'start.json')
+    else:
+        default_settings = {}
 
     # Declare a helper function for referencing the start settings
     def get_option(option: str, default = None):
@@ -261,20 +269,24 @@ def start(config):
 
     # Quick helper function for updating the SERVER_STATUS file
     def update_status(message: str):
+        if ignore_status: return
         with (server / 'SERVER_STATUS').open('w') as s:
             s.write(message)
 
     # Start the server
     print('Starting server with command `' + command + '`.')
-    update_status("STATUS: ONLINE\nIP: " + ip)
+    update_status(f"STATUS: Online\nVersion: {version}\nIP: {ip}")
     code = os.system(command)
-    print(f"Process ended with exit code {code}.")
+    print(f'Server closed with exit code {code}.')
 
     # Request closing status
-    update_status('STATUS: Unexpectedly Closed')
-    print('Server closed. Enter the closure status.')
-    print('(Status will read "Unexpectedly Closed" until this is done).')
-    update_status('STATUS: ' + input('>>> '))
+    if crash_message:
+        update_status('STATUS: ' + crash_message)
+        print('Enter the closure status.')
+        print(f'(Status will read "{crash_message}" until this is done).')
+        update_status('STATUS: ' + input('>>> '))
+    else:
+        update_status('STATUS: Offline')
 
 @click.group()
 def main():
