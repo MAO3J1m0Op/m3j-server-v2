@@ -85,12 +85,13 @@ def deploy(config):
     except FileNotFoundError:
         deployed_files = {}
 
-    # Delete all the copied files in the previously deployed config
-    for file in deployed_files.get('files', []):
-        if (server / file).is_file():
-            os.remove(server / file)
-        elif (server / file).is_dir():
-            shutil.rmtree(server / file)
+    # Write the files to the old config
+    old_config = deployed_files.get('configuration')
+    if old_config is not None and (configs / old_config).is_dir():
+
+        # Move each deployed file back into the old config
+        for file in deployed_files.get('files', []):
+            shutil.move(server / file, config_p / file)
     
     deployed_files = []
     # Get all the files in the configuration

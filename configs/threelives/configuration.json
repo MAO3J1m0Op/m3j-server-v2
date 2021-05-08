@@ -1,0 +1,10 @@
+{
+    "config_name": ".default",
+    "server_version": "1.7.10",
+    "args": [
+        "-Xmx1024M",
+        "-Xms1024M"
+    ],
+    "launch_gui": false,
+    "volatile_world": false
+}
