@@ -238,7 +238,8 @@ def start(config, crash_message, ignore_status):
     start = read_json(server / 'configuration.json')
     #TODO: only load these in when necessary
     if (configs / '.default' / 'configuration.json').is_file():
-        default_settings = read_json(configs / '.default' / 'configuration.json')
+        default_settings = read_json(
+            configs / '.default' / 'configuration.json')
     else:
         default_settings = {}
 
@@ -251,8 +252,8 @@ def start(config, crash_message, ignore_status):
             return deployed
             
         # Then try the config file in .default
-        print(f'Deployed configuration.json has no option {option}. Falling back ' + \
-            f'to option in {str(configs / ".default")}.')
+        print(f'Deployed configuration.json has no option {option}. ' + \
+            f'Falling back to option in {str(configs / ".default")}.')
         return default_settings.get(option, default)
 
     # Read in the start settings
