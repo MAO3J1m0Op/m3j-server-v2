@@ -131,11 +131,15 @@ def deploy(config):
 def download(skip_checksum, version: str):
 
     from urllib.request import urlopen, urlretrieve
+    from urllib.error import URLError
     man_url = 'https://launchermeta.mojang.com/mc/game/version_manifest.json'
 
     print('Fetching Minecraft version manifest.')
-    with urlopen(man_url) as url:
-        manifest = json.load(url)
+    try:
+        with urlopen(man_url) as url:
+            manifest = json.load(url)
+    except URLError as e:
+        raise ScriptError(str(e))
 
     # Get latest version of Minecraft
     if version in ('latest', 'latest-release'):
@@ -160,8 +164,11 @@ def download(skip_checksum, version: str):
         raise ScriptError(f'No official version {version} exists.')
 
     print(f'Fetching manifest for version {version}.')
-    with urlopen(v_data['url']) as url:
-        v_manifest = json.load(url)['downloads']
+    try:
+        with urlopen(v_data['url']) as url:
+            v_manifest = json.load(url)['downloads']
+    except URLError as e:
+        raise ScriptError(str(e))
     
     # Check if the version has a server
     v_manifest = v_manifest.get('server')
@@ -172,7 +179,10 @@ def download(skip_checksum, version: str):
     size = round(v_manifest['size'] / (1024 ** 2), 1)
 
     print(f'Downloading {version}.jar (size {size}MB).')
-    urlretrieve(url, server / (version + '.jar'))
+    try:
+        urlretrieve(url, server / (version + '.jar'))
+    except URLError as e:
+        raise ScriptError(str(e))
 
     if not skip_checksum:
         print('Verifying download', end='...')
