@@ -51,7 +51,7 @@ def create(config):
     def create_configuration(name):
         config_p = configs / name
 
-        if config_p.exists():
+        if not safe_make_folder(config_p):
             raise ScriptError(f'Configuration {config_p} already exists.')
 
         # Add default world 
