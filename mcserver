@@ -259,7 +259,8 @@ def start(config, crash_message, ignore_status):
     # Read in the start settings
     version = get_option('server_version')
     if version is None:
-        raise ScriptError('No server version specified in configuration.json.')
+        raise ScriptError(
+            'No server version specified in configuration.json.')
     args = ''.join([' ' + a for a in get_option('args', [])])
     gui = get_option('launch_gui', False)
     volatile_world = get_option('volatile_world', False)
