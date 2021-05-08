@@ -12,16 +12,37 @@ server = Path(os.path.dirname(argv[0]))
 os.chdir(server)
 configs = server / 'configs'
 
-default_start_file = {
-    "config_name": ".default",
-    "server_version": "1.7.10",
-    "args": [
-        "-Xmx1024M",
-        "-Xms1024M"
-    ],
-    "launch_gui": False,
-    "volatile_world": False
-}
+class ConfigOption:
+    def __init__(self, name: str, datatype: type, default = None, 
+            desc: str = None):
+        self.name = name
+        self.datatype = datatype
+        self.default = default
+        self.desc = desc
+    
+    # Return a click option decorator to be added to the modify command
+    def option_for_modify(self):
+        return click.option('--' + self.name, cls=self.datatype, 
+            help=self.desc)
+
+    def get_from_json(self, json: dict, none_default: bool = False):
+        val = json.get(self.name)
+        default = None if none_default else self.default
+        return val if type(val) is self.datatype else default
+
+config_options = dict([(i.name, i) for i in [
+    ConfigOption('version', str, 'latest', 
+        'The version of Minecraft to launch'),
+    ConfigOption('args', list, [],
+        'The command-line arguments to pass to the server executable'),
+    ConfigOption('launch_gui', bool, False,
+        'Launch the server with the GUI panel'),
+    ConfigOption('volatile_world', bool, False,
+        'Generate a new world each time the server is started')
+]])
+
+def default_options():
+    return dict((k, v.default) for k, v in config_options.items())
 
 class ScriptError(Exception):
     pass
@@ -59,7 +80,7 @@ def create(config):
 
         # Add config settings
         with open(config_p / 'configuration.json', 'x') as j:
-            json.dump(default_start_file, j, indent=4)
+            json.dump(default_options(), j, indent=4)
 
     default_folder = configs / '.default'
     if safe_make_folder(default_folder):
@@ -90,8 +111,12 @@ def deploy(config):
     if old_config is not None and (configs / old_config).is_dir():
 
         # Move each deployed file back into the old config
-        for file in deployed_files.get('files', []):
-            shutil.move(server / file, config_p / file)
+        try:
+            for file in deployed_files.get('files', []):
+                shutil.move(str(server / file), str(config_p / file))
+        except FileNotFoundError:
+            # Swallow FileNotFoundErrors
+            pass
     
     deployed_files = []
     # Get all the files in the configuration
@@ -208,6 +233,11 @@ def download(skip_checksum, version: str):
     print(f'Successfully installed {version}.jar.')
 
 @click.command()
+@click.argument('config')
+def modify(config):
+    pass
+
+@click.command()
 @click.option('--crash-message', '-c', help='Sets the server status '
     'to a crash message upon close until the user provides a '
     'message.')
@@ -247,14 +277,14 @@ def start(config, crash_message, ignore_status):
     def get_option(option: str, default = None):
 
         # First try the deployed config file
-        deployed = start.get(option)
+        deployed = config_options[option].get_from_json(start, True)
         if deployed is not None:
             return deployed
             
         # Then try the config file in .default
         print(f'Deployed configuration.json has no option {option}. ' + \
             f'Falling back to option in {str(configs / ".default")}.')
-        return default_settings.get(option, default)
+        return config_options[option].get_from_json(default_settings)
 
     # Read in the start settings
     version = get_option('server_version')
@@ -335,6 +365,7 @@ def main():
 main.add_command(create)
 main.add_command(deploy)
 main.add_command(download)
+main.add_command(modify)
 main.add_command(start)
 
 if __name__ == '__main__':
