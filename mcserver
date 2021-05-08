@@ -234,12 +234,12 @@ def start(config, crash_message, ignore_status):
     # Declare a helper function for referencing the start settings
     def get_option(option: str, default = None):
 
-        # First try the deployed start file
+        # First try the deployed config file
         deployed = start.get(option)
         if deployed is not None:
             return deployed
             
-        # Then try the start file in .default
+        # Then try the config file in .default
         print(f'Deployed configuration.json has no option {option}. Falling back ' + \
             f'to option in {str(configs / ".default")}.')
         return default_settings.get(option, default)
