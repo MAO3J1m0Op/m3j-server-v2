@@ -26,7 +26,7 @@ class ConfigOption:
             help=self.desc)
 
     def get_from_json(self, json: dict, none_default: bool = False):
-        val = json.get(self.name, None)
+        val = json.get(self.name)
         default = None if none_default else self.default
         return val if type(val) is self.datatype else default
 
