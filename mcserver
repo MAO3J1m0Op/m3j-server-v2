@@ -123,8 +123,8 @@ def deploy(config):
     _, files, folders = next(iter(os.walk(config_p)))
     for file in files + folders:
 
-        # Ignore configuration.json and hidden files
-        if file == 'configuration.json' or file.startswith('.'):
+        # Ignore hidden files
+        if file.startswith('.'):
             continue
 
         # Keep a record of the deployed files
