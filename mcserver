@@ -268,8 +268,11 @@ def start(config, crash_message, ignore_status):
     start = read_json(server / 'configuration.json')
     #TODO: only load these in when necessary
     if (configs / '.default' / 'configuration.json').is_file():
-        default_settings = read_json(
-            configs / '.default' / 'configuration.json')
+        with (configs / '.default' / 'configuration.json').open('r') as p:
+            try:
+                default_settings = json.load(p)
+            except FileNotFoundError:
+                default_settings = {}
     else:
         default_settings = {}
 
