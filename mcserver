@@ -31,6 +31,8 @@ class ConfigOption:
         return val if type(val) is self.datatype else default
 
 config_options = dict([(i.name, i) for i in [
+    ConfigOption('config_name', str, '.default', 
+        'The name of the config to which this file belongs'),
     ConfigOption('server_version', str, 'latest', 
         'The version of Minecraft to launch'),
     ConfigOption('args', list, [],
@@ -41,8 +43,10 @@ config_options = dict([(i.name, i) for i in [
         'Generate a new world each time the server is started')
 ]])
 
-def default_options():
-    return dict((k, v.default) for k, v in config_options.items())
+def default_options(config_name: str):
+    v = dict((k, v.default) for k, v in config_options.items())
+    v['config_name'] = config_name
+    return v
 
 class ScriptError(Exception):
     pass
@@ -77,7 +81,7 @@ def create(config):
 
         # Add config settings
         with open(config_p / 'configuration.json', 'x') as j:
-            json.dump(default_options(), j, indent=4)
+            json.dump(default_options(name), j, indent=4)
 
     default_folder = configs / '.default'
     if safe_make_folder(default_folder):
