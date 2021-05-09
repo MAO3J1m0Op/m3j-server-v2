@@ -69,11 +69,8 @@ def create(config):
 
     safe_make_folder(configs)
 
-    def create_configuration(name):
+    def populate_configuration(name):
         config_p = configs / name
-
-        if not safe_make_folder(config_p):
-            raise ScriptError(f'Configuration {config_p} already exists.')
 
         # Add default world 
         safe_make_folder(config_p / 'world-template')
@@ -85,10 +82,15 @@ def create(config):
     default_folder = configs / '.default'
     if safe_make_folder(default_folder):
         print(f'Creating a default configuration at {default_folder}.')
-        create_configuration('.default')
-
-    print(f'Creating new configuration named "{config}".')
-    create_configuration(config)
+        populate_configuration('.default')
+    else:
+        raise ScriptError(f'Configuration {default_folder} already exists.')
+  
+    if safe_make_folder(config):
+        print(f'Creating new configuration named "{config}".')
+        populate_configuration(config)
+    else:
+        raise ScriptError(f'Configuration {config} already exists.')
 
 @click.command()
 @click.argument('config')
