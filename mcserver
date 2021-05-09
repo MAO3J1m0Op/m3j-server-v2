@@ -84,7 +84,7 @@ def create(config):
         print(f'Creating a default configuration at {default_folder}.')
         populate_configuration('.default')
   
-    if safe_make_folder(config):
+    if safe_make_folder(configs / config):
         print(f'Creating new configuration named "{config}".')
         populate_configuration(config)
     else:
