@@ -31,7 +31,7 @@ class ConfigOption:
         return val if type(val) is self.datatype else default
 
 config_options = dict([(i.name, i) for i in [
-    ConfigOption('version', str, 'latest', 
+    ConfigOption('server_version', str, 'latest', 
         'The version of Minecraft to launch'),
     ConfigOption('args', list, [],
         'The command-line arguments to pass to the server executable'),
