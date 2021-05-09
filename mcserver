@@ -239,7 +239,43 @@ def download(skip_checksum, version: str):
 @click.command()
 @click.argument('config')
 def modify(config, **options):
-    pass
+
+    # Get the config folder
+    config_p = configs / config
+    if not config_p.is_dir():
+        raise ScriptError(f'No configuration {config} exists.')
+
+    # Get config file
+    try:
+        with (config_p / 'configuration.json').open('r') as j:
+            config_file = json.load(j)
+    except FileNotFoundError:
+        config_file = {}
+    except json.decoder.JSONDecodeError as e:
+        raise ScriptError('Malformed JSON in configuration.json: ' + str(e))
+
+    # Make the modifications
+    for option, v in options.items():
+
+        if v is None:
+            continue
+
+        # Rename the configuration
+        if option == 'config_name':
+
+            # Ensure the new name does not exist
+            if not (configs / v).exists():
+                os.rename(config_p, configs / v)
+                print(f'Renamed configuration {config} to "{v}".')
+                config = v
+                config_p = configs / v
+            else:
+                print(f'Could not rename configuration: "{v} already exists.')
+
+        config_file[option] = v
+    
+    with (config_p / 'configuration.json').open('w+') as j:
+        json.dump(config_file, j, indent=4)
 
 # Decorate modify based on the config options
 for option in config_options.values():
