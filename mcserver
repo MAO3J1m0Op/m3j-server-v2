@@ -438,12 +438,14 @@ def start(ctx, config, crash_message, ignore_status):
         try:
             ctx.invoke(download, version=version)
         except ScriptError:
-            # Download failed, draw from local latest
-            try:
-                with (server / 'local_latest.json').open('r') as j:
-                    version = json.load(j)[version]
-            except (FileNotFoundError, KeyError):
-                raise ScriptError('Could not determine the latest version.')
+            pass
+
+        # Now run the local latest file
+        try:
+            with (server / 'local_latest.json').open('r') as j:
+                version = json.load(j)[version]
+        except (FileNotFoundError, KeyError):
+            raise ScriptError('Could not determine the latest version.')
     
     # Splice the command
     command = 'java' + args + ' -jar ' + version + '.jar' + \
