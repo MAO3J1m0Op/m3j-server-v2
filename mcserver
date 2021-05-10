@@ -339,6 +339,7 @@ for option in config_options.values():
 @click.option('--ignore-status', '-i', is_flag=True,
     help='Do not edit the server status file.')
 @click.argument('config', required=False)
+@click.pass_context
 def start(ctx, config, crash_message, ignore_status):
 
     # Deploy the config option
@@ -434,7 +435,7 @@ def start(ctx, config, crash_message, ignore_status):
     # Download the latest JAR file
     if version in ('latest', 'latest-snapshot', 'latest-release'):
         try:
-            ctx.invoke(download, version)
+            ctx.invoke(download, version=version)
         except ScriptError:
             # Download failed, draw from local latest
             try:
