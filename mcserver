@@ -311,14 +311,15 @@ def modify(config, config_name, **options):
         raise ScriptError('Malformed JSON in configuration.json: ' + str(e))
 
     # Rename the configuration
-    if config_name is not None and not (configs / config_name).exists():
-        os.rename(config_p, configs / config_name)
-        print(f'Renamed configuration {config} to "{config_name}".')
-        config = config_name
-        config_p = configs / config_name
-    else:
-        print(
-            f'Could not rename configuration: "{config_name} already exists.')
+    if config_name is not None:
+        if not (configs / config_name).exists():
+            os.rename(config_p, configs / config_name)
+            print(f'Renamed configuration {config} to "{config_name}".')
+            config = config_name
+            config_p = configs / config_name
+        else:
+            print('Could not rename configuration: '
+                f'{config_name}" already exists.')
 
     # Make the modifications
     for option, v in options.items():
