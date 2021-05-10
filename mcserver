@@ -52,6 +52,45 @@ class ScriptError(Exception):
     pass
 
 @click.command()
+@click.argument('file')
+@click.argument('config')
+def add(config, file):
+    
+    # Figure out which configuration is active
+    try:
+        with (server / 'deployed_files.json').open('r') as j:
+            config_file = json.load(j)
+    except FileNotFoundError:
+        config_file = {}
+
+    # For if the configuration to edit is the active one
+    if config_file.get('configuration', None) == config:
+
+        # Count the new file as a deployed file
+        config_file['files'].append(file)
+
+        # Export the updated JSON
+        with (server / 'deployed_files.json').open('w') as j:
+            json.dump(config_file, j, indent=4)
+
+        print(f'Appended {file} to deployed_files.json, as {config} '
+            'is the active config.')
+
+    # For if the configuration to edit is not the active one
+    else:
+
+        # Copy the file to the configuration
+        config_p = configs / config
+        if config_p.is_dir():
+            if (server / file).is_file():
+                shutil.copy(server / file, config_p / file)
+            elif (server / file).is_dir():
+                shutil.copytree(server / file, config_p / file)
+            print(f'Copied {file} into {config}.')
+        else:
+            raise ScriptError(f'Configuration "{config}" does not exist.')
+
+@click.command()
 @click.argument('config')
 def create(config):
 
@@ -404,6 +443,7 @@ def start(config, crash_message, ignore_status):
 def main():
     pass
 
+main.add_command(add)
 main.add_command(create)
 main.add_command(deploy)
 main.add_command(download)
