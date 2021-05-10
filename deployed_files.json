@@ -1,0 +1,8 @@
+{
+    "configuration": "threelives",
+    "files": [
+        "server.properties",
+        "server-icon.png",
+        "configuration.json"
+    ]
+}
