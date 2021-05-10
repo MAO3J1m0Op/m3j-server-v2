@@ -156,7 +156,16 @@ def deploy(config):
         # Move each deployed file back into the old config
         for file in deployed_files.get('files', []):
             try:
-                shutil.move(str(server / file), str(config_p))
+
+                # Delete file/folder to be overwritten
+                if (configs / old_config / file).is_file():
+                    os.remove(configs / old_config / file)
+                elif (configs / old_config / file).is_dir():
+                    shutil.rmtree(configs / old_config / file)
+
+                # Move file in
+                shutil.move(str(server / file), str(configs / old_config))
+
             except FileNotFoundError:
                 # Swallow FileNotFoundErrors
                 pass
@@ -181,7 +190,7 @@ def deploy(config):
             
         # Copy in new file
         if (config_p / file).is_file():
-            shutil.copy(config_p / file, server / file)
+            shutil.copy(config_p / file, server)
         elif (config_p / file).is_dir():
             shutil.copytree(config_p / file, server / file)
 
