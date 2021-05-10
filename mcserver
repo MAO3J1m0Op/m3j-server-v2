@@ -402,7 +402,7 @@ def start(config, crash_message, ignore_status):
             world_name = world_name[:-1]
 
         # Default to "world"
-        if world_name == '':
+        if not world_name:
             world_name = 'world'
 
         # Delete the old folder
@@ -411,7 +411,7 @@ def start(config, crash_message, ignore_status):
                 print(f'About to delete folder {server / world_name}. ' + \
                     'Press enter to confirm.')
                 input()
-                shutil.rmtree(server / world_name, Path.home())
+                shutil.rmtree(server / world_name)
 
         # Copy in the template if the world must be recreated
         if not (server / world_name).exists():
