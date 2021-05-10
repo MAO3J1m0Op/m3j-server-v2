@@ -226,6 +226,14 @@ def download(skip_checksum, version: str):
         version = manifest["latest"]["snapshot"]
         print(f'Latest snapshot of Minecraft is {version}')
 
+    # Update latest version info
+    with (server/'local_latest.json').open('w+') as j:
+        json.dump({
+            "latest": manifest["latest"]["release"],
+            "latest-release": manifest["latest"]["release"],
+            "latest-snapshot": manifest["latest"]["snapshot"]
+        }, j, indent=4)
+
     # Check if version is already installed
     if (server / (version + '.jar')).exists():
         raise ScriptError(f'Minecraft version {version} already installed.')
@@ -331,11 +339,11 @@ for option in config_options.values():
 @click.option('--ignore-status', '-i', is_flag=True,
     help='Do not edit the server status file.')
 @click.argument('config', required=False)
-def start(config, crash_message, ignore_status):
+def start(ctx, config, crash_message, ignore_status):
 
     # Deploy the config option
     if config is not None:
-        deploy(config)
+        ctx.invoke(deploy, config=config)
 
     def read_json(path: Path) -> dict:
         try:
@@ -423,6 +431,18 @@ def start(config, crash_message, ignore_status):
             else:
                 print('Could not locate a world template.')
 
+    # Download the latest JAR file
+    if version in ('latest', 'latest-snapshot', 'latest-release'):
+        try:
+            download(version)
+        except ScriptError:
+            # Download failed, draw from local latest
+            try:
+                with (server / 'local_latest.json').open('r') as j:
+                    version = json.load(j)[version]
+            except (FileNotFoundError, KeyError):
+                raise ScriptError('Could not determine the latest version.')
+    
     # Splice the command
     command = 'java' + args + ' -jar ' + version + '.jar' + \
         ' nogui' if not gui else ''
