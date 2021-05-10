@@ -154,12 +154,12 @@ def deploy(config):
     if old_config is not None and (configs / old_config).is_dir():
 
         # Move each deployed file back into the old config
-        try:
-            for file in deployed_files.get('files', []):
-                shutil.move(str(server / file), str(config_p / file))
-        except FileNotFoundError:
-            # Swallow FileNotFoundErrors
-            pass
+        for file in deployed_files.get('files', []):
+            try:
+                shutil.move(str(server / file), str(config_p))
+            except FileNotFoundError:
+                # Swallow FileNotFoundErrors
+                pass
     
     deployed_files = []
     # Get all the files in the configuration
