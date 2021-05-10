@@ -1,5 +1,5 @@
 {
-    "configuration": "threelives",
+    "configuration": "lobby",
     "files": [
         "server.properties",
         "server-icon.png",
