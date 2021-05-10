@@ -434,7 +434,7 @@ def start(ctx, config, crash_message, ignore_status):
     # Download the latest JAR file
     if version in ('latest', 'latest-snapshot', 'latest-release'):
         try:
-            download(version)
+            ctx.invoke(download, version)
         except ScriptError:
             # Download failed, draw from local latest
             try:
