@@ -337,11 +337,11 @@ for option in config_options.values():
 @click.option('--crash-message', '-c', help='Sets the server status '
     'to a crash message upon close until the user provides a '
     'message.')
-@click.option('--ignore-status', '-i', is_flag=True,
-    help='Do not edit the server status file.')
+@click.option('--update-status', '-s', is_flag=True,
+    help='Export the server status to a file.')
 @click.argument('config', required=False)
 @click.pass_context
-def start(ctx, config, crash_message, ignore_status):
+def start(ctx, config, crash_message, update_status):
 
     # Deploy the config option
     if config is not None:
@@ -354,12 +354,6 @@ def start(ctx, config, crash_message, ignore_status):
             return j
         except IOError as e:
             raise ScriptError(str(e))
-
-    # Get the server IP
-    private = read_json(server / 'private.json')
-    ip = private.get('ip', None)
-    if ip is None:
-        raise ScriptError('IP not found. Add it to private.json.')
 
     # Get the start settings
     start = read_json(server / 'configuration.json')
@@ -453,13 +447,22 @@ def start(ctx, config, crash_message, ignore_status):
 
     # Quick helper function for updating the SERVER_STATUS file
     def update_status(message: str):
-        if ignore_status: return
-        with (server / 'SERVER_STATUS').open('w') as s:
+        if not update_status: return
+        with (server / 'SERVER_STATUS').open('w+') as s:
             s.write(message)
+
+    # Get additional server info for the server status
+    if update_status:
+        try:
+            with (server / 'server.json').open('r') as j:
+                server_info = [f'{k}: {v}' for k, v in json.load(j).items()]
+            server_info = '\n'.join(server_info)
+        except FileNotFoundError:
+            server_info = ''
 
     # Start the server
     print('Starting server with command `' + command + '`.')
-    update_status(f"STATUS: Online\nVersion: {version}\nIP: {ip}")
+    update_status(f"STATUS: Online\nVersion: {version}\n" + server_info)
     code = os.system(command)
     print(f'Server closed with exit code {code}.')
 
